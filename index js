@@ -1,0 +1,52 @@
+// implement your API here
+const express = require('express');
+const server = express();
+const User = require("./data/db");
+
+let id = 0;
+const getId = () => ++id;
+let hobbits = [{
+    id: getId(), name: 'Samwise Gamgee'
+}, {
+    id: getId(), name: 'Frodo Baggins'
+}]
+server.get('/', (req, res) => {
+    res.send("Hello World");
+})
+
+server.get('/hobbits', (req, res) => {
+  
+    res.json(hobbits);
+    
+})
+
+server.get('/hobbits/:id', (req, res) => {
+    res.json(hobbits.find(hob => hob.id === req.params.id))
+})
+
+server.post("/hobbits", (req, res) => {
+    hobbits.push({id: getId(), name: req.body.name})
+    res.status(201).json(hobbits)
+})
+
+server.put("/hobbits/:id", (req, res) => {
+    hobbits = hobbits.map(hob => hob.id === req.params.id ? {...hob, name: req.body.name} : hob);
+    res.json(hobbits);
+})
+
+server.delete("/hobbits/:id", (req, res) => {
+    hobbits = hobbits.filter(hob => hob.id !== req.params.id);
+    res.json(hobbits);
+});
+
+server.get("/users", async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({message: "Server error"})
+    }
+})
+server.listen(8001, ()=> {
+    console.log("API running on port 8001");
+})
